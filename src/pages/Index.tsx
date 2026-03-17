@@ -1,110 +1,13 @@
+import { useMemo } from 'react'
 import { useFinance } from '@/contexts/FinanceContext'
-import {
-  Building,
-  CreditCard,
-  Plane,
-  LineChart,
-  Activity,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react'
+import { Activity, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
-import { EntityCard, EntityData } from '@/components/EntityCard'
-import { formatCurrency, formatCompactCurrency } from '@/lib/format'
+import { EntityCard } from '@/components/EntityCard'
+import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
-
-const MOCK_ENTITIES: EntityData[] = [
-  {
-    id: 'sp',
-    name: 'Servidor Público',
-    type: 'PF',
-    icon: Building,
-    balance: 8500,
-    inflow: 12000,
-    outflow: 3500,
-  },
-  {
-    id: 'mp',
-    name: 'Milheiro Profissional',
-    type: 'PF',
-    icon: CreditCard,
-    balance: 42300.5,
-    inflow: 65000,
-    outflow: 22699.5,
-  },
-  {
-    id: 'av',
-    name: 'Agência de Viagens',
-    type: 'PJ',
-    icon: Plane,
-    balance: 120000,
-    inflow: 200000,
-    outflow: 80000,
-  },
-  {
-    id: 'mf',
-    name: 'Mercado Financeiro',
-    type: 'PF',
-    icon: LineChart,
-    balance: 250000,
-    inflow: 5000,
-    outflow: 0,
-  },
-]
-
-const MOCK_CHART_DATA = [
-  { month: 'Set', entradas: 125000, saidas: 90000 },
-  { month: 'Out', entradas: 180000, saidas: 110000 },
-  { month: 'Nov', entradas: 150000, saidas: 95000 },
-  { month: 'Dez', entradas: 210000, saidas: 105000 },
-  { month: 'Jan', entradas: 195000, saidas: 85000 },
-  { month: 'Fev', entradas: 282000, saidas: 106199.5 },
-]
-
-const MOCK_TRANSACTIONS = [
-  {
-    id: 1,
-    title: 'Salário Servidor',
-    entity: 'Servidor Público',
-    amount: 12000,
-    type: 'in',
-    date: 'Hoje, 09:00',
-  },
-  {
-    id: 2,
-    title: 'Venda de Milhas',
-    entity: 'Milheiro Profissional',
-    amount: 5400,
-    type: 'in',
-    date: 'Ontem, 14:30',
-  },
-  {
-    id: 3,
-    title: 'Fornecedor Aéreos',
-    entity: 'Agência de Viagens',
-    amount: 15000,
-    type: 'out',
-    date: 'Ontem, 10:15',
-  },
-  {
-    id: 4,
-    title: 'Dividendos FIIs',
-    entity: 'Mercado Financeiro',
-    amount: 1250,
-    type: 'in',
-    date: '12 Fev, 11:00',
-  },
-  {
-    id: 5,
-    title: 'Assinaturas Múltiplas',
-    entity: 'Milheiro Profissional',
-    amount: 890.5,
-    type: 'out',
-    date: '10 Fev, 08:45',
-  },
-]
+import { MOCK_CHART_DATA } from '@/lib/mock-data'
 
 const chartConfig = {
   entradas: { label: 'Entradas', color: 'hsl(var(--chart-1))' },
@@ -112,8 +15,24 @@ const chartConfig = {
 }
 
 export default function Index() {
-  const { isBalanceHidden } = useFinance()
-  const totalBalance = MOCK_ENTITIES.reduce((acc, curr) => acc + curr.balance, 0)
+  const { isBalanceHidden, entities, transactions } = useFinance()
+  const entitiesList = Object.values(entities)
+  const totalBalance = entitiesList.reduce((acc, curr) => acc + curr.balance, 0)
+
+  const recentActivities = useMemo(() => {
+    return Object.entries(transactions)
+      .flatMap(([eId, txs]) =>
+        txs.map((tx) => ({
+          id: tx.id,
+          title: tx.description,
+          entity: entities[eId]?.name || eId,
+          amount: tx.amount,
+          type: tx.type,
+          date: tx.date,
+        })),
+      )
+      .slice(0, 5)
+  }, [transactions, entities])
 
   return (
     <div className="flex flex-col gap-6">
@@ -144,7 +63,7 @@ export default function Index() {
       </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {MOCK_ENTITIES.map((entity, index) => (
+        {entitiesList.map((entity, index) => (
           <EntityCard
             key={entity.id}
             entity={entity}
@@ -230,7 +149,7 @@ export default function Index() {
           </CardHeader>
           <CardContent className="flex-1 px-4 pb-4">
             <div className="space-y-5">
-              {MOCK_TRANSACTIONS.map((tx) => (
+              {recentActivities.map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div

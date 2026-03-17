@@ -1,11 +1,77 @@
 import { Building, CreditCard, Plane, LineChart } from 'lucide-react'
 
 export const ENTITIES_META = {
-  sp: { id: 'sp', name: 'Servidor Público', icon: Building, balance: 8500, type: 'PF' },
-  mp: { id: 'mp', name: 'Milheiro Profissional', icon: CreditCard, balance: 42300.5, type: 'PF' },
-  av: { id: 'av', name: 'Agência de Viagens', icon: Plane, balance: 120000, type: 'PJ' },
-  mf: { id: 'mf', name: 'Mercado Financeiro', icon: LineChart, balance: 250000, type: 'PF' },
+  sp: {
+    id: 'sp',
+    name: 'Servidor Público',
+    icon: Building,
+    balance: 8500,
+    type: 'PF' as const,
+    inflow: 12000,
+    outflow: 3500,
+  },
+  mp: {
+    id: 'mp',
+    name: 'Milheiro Profissional',
+    icon: CreditCard,
+    balance: 42300.5,
+    type: 'PF' as const,
+    inflow: 65000,
+    outflow: 22699.5,
+  },
+  av: {
+    id: 'av',
+    name: 'Agência de Viagens',
+    icon: Plane,
+    balance: 120000,
+    type: 'PJ' as const,
+    inflow: 200000,
+    outflow: 80000,
+  },
+  mf: {
+    id: 'mf',
+    name: 'Mercado Financeiro',
+    icon: LineChart,
+    balance: 250000,
+    type: 'PF' as const,
+    inflow: 5000,
+    outflow: 0,
+  },
 }
+
+export const CATEGORIES_BY_ENTITY = {
+  sp: ['Salário STN', 'IRPF', 'Benefícios', 'Transferência para Milheiro'],
+  mp: [
+    'Compra de Milhas',
+    'Venda para Agência',
+    'Venda para Terceiros',
+    'Fatura Cartão',
+    'Transferência Recebida',
+  ],
+  av: [
+    'Receita de Emissões',
+    'Compra de Milhas do Milheiro',
+    'Custos Operacionais',
+    'Repasse PJ para PF',
+  ],
+  mf: [
+    'Aporte',
+    'Resgate',
+    'Rendimento Renda Fixa',
+    'Dividendos ETF',
+    'Resultado Day-Trade',
+    'Bitcoin',
+  ],
+}
+
+export const MOCK_CHART_DATA = [
+  { month: 'Set', entradas: 125000, saidas: 90000 },
+  { month: 'Out', entradas: 180000, saidas: 110000 },
+  { month: 'Nov', entradas: 150000, saidas: 95000 },
+  { month: 'Dez', entradas: 210000, saidas: 105000 },
+  { month: 'Jan', entradas: 195000, saidas: 85000 },
+  { month: 'Fev', entradas: 282000, saidas: 106199.5 },
+]
 
 export type TransactionType = 'in' | 'out'
 export type TransactionOrigin = 'interna' | 'externa'
@@ -24,20 +90,20 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
   sp: [
     {
       id: '1',
-      date: 'Hoje',
+      date: 'Hoje, 09:00',
       description: 'Salário STN',
       type: 'in',
       amount: 15000,
-      category: 'salário STN',
+      category: 'Salário STN',
       origin: 'externa',
     },
     {
       id: '2',
-      date: 'Ontem',
+      date: 'Ontem, 10:00',
       description: 'Transferência para Milheiro',
       type: 'out',
       amount: 5000,
-      category: 'transferência para milheiro',
+      category: 'Transferência para Milheiro',
       origin: 'interna',
     },
     {
@@ -55,7 +121,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Auxílio Alimentação',
       type: 'in',
       amount: 1200,
-      category: 'benefícios',
+      category: 'Benefícios',
       origin: 'externa',
     },
   ],
@@ -66,7 +132,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Transferência Recebida',
       type: 'in',
       amount: 5000,
-      category: 'transferência recebida do servidor',
+      category: 'Transferência Recebida',
       origin: 'interna',
     },
     {
@@ -75,7 +141,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Compra TudoAzul',
       type: 'out',
       amount: 3500,
-      category: 'compra de milhas',
+      category: 'Compra de Milhas',
       origin: 'externa',
     },
     {
@@ -84,7 +150,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Venda Balcão',
       type: 'in',
       amount: 2800,
-      category: 'venda para agência',
+      category: 'Venda para Agência',
       origin: 'interna',
     },
     {
@@ -93,16 +159,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Pagamento Fatura Black',
       type: 'out',
       amount: 4200,
-      category: 'fatura cartão',
-      origin: 'externa',
-    },
-    {
-      id: '5',
-      date: '10 Fev',
-      description: 'Venda Direta',
-      type: 'in',
-      amount: 1500,
-      category: 'venda para terceiros',
+      category: 'Fatura Cartão',
       origin: 'externa',
     },
   ],
@@ -113,7 +170,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Emissão Pacote Miami',
       type: 'in',
       amount: 12500,
-      category: 'receita de emissões',
+      category: 'Receita de Emissões',
       origin: 'externa',
     },
     {
@@ -122,7 +179,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Compra Milhas MP',
       type: 'out',
       amount: 2800,
-      category: 'compra de milhas do milheiro',
+      category: 'Compra de Milhas do Milheiro',
       origin: 'interna',
     },
     {
@@ -131,7 +188,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Aluguel Sala',
       type: 'out',
       amount: 2500,
-      category: 'custos operacionais',
+      category: 'Custos Operacionais',
       origin: 'externa',
     },
     {
@@ -140,7 +197,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Distribuição Lucros',
       type: 'out',
       amount: 8000,
-      category: 'repasse PJ para PF',
+      category: 'Repasse PJ para PF',
       origin: 'interna',
     },
   ],
@@ -151,7 +208,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Rendimento Tesouro',
       type: 'in',
       amount: 450,
-      category: 'rendimento renda fixa',
+      category: 'Rendimento Renda Fixa',
       origin: 'externa',
     },
     {
@@ -160,7 +217,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Aporte Mensal',
       type: 'in',
       amount: 2000,
-      category: 'aporte',
+      category: 'Aporte',
       origin: 'interna',
     },
     {
@@ -169,7 +226,7 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Dividendos IVVB11',
       type: 'in',
       amount: 125,
-      category: 'dividendos ETF',
+      category: 'Dividendos ETF',
       origin: 'externa',
     },
     {
@@ -178,26 +235,8 @@ export const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
       description: 'Compra BTC',
       type: 'out',
       amount: 1000,
-      category: 'bitcoin',
+      category: 'Bitcoin',
       origin: 'externa',
-    },
-    {
-      id: '5',
-      date: '12 Fev',
-      description: 'Gain Mini-Índice',
-      type: 'in',
-      amount: 850,
-      category: 'resultado day-trade',
-      origin: 'externa',
-    },
-    {
-      id: '6',
-      date: '10 Fev',
-      description: 'Resgate Emergência',
-      type: 'out',
-      amount: 3000,
-      category: 'resgate',
-      origin: 'interna',
     },
   ],
 }

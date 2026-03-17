@@ -17,15 +17,15 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { ENTITIES_META, MOCK_TRANSACTIONS, generateChartData } from '@/lib/mock-data'
+import { generateChartData } from '@/lib/mock-data'
 
 export default function Transactions() {
   const [searchParams] = useSearchParams()
   const entityId = searchParams.get('entity')
-  const { isBalanceHidden } = useFinance()
+  const { isBalanceHidden, entities, transactions: allTransactions } = useFinance()
 
-  const entity = entityId ? ENTITIES_META[entityId as keyof typeof ENTITIES_META] : null
-  const transactions = entityId ? MOCK_TRANSACTIONS[entityId] || [] : []
+  const entity = entityId ? entities[entityId] : null
+  const transactions = entityId ? allTransactions[entityId] || [] : []
 
   const chartData = useMemo(() => {
     return entity ? generateChartData(entity.balance) : []

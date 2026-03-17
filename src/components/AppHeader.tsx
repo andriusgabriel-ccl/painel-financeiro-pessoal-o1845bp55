@@ -1,10 +1,16 @@
+import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, Plus, Bell } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { useFinance } from '@/contexts/FinanceContext'
+import { NewTransactionModal } from './NewTransactionModal'
 
 export function AppHeader() {
   const { isBalanceHidden, toggleBalance } = useFinance()
+  const [searchParams] = useSearchParams()
+  const entityId = searchParams.get('entity') || undefined
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const today = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'long',
@@ -43,11 +49,20 @@ export function AppHeader() {
           <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary ring-2 ring-background"></span>
         </Button>
 
-        <Button className="ml-2 gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-105">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="ml-2 gap-2 shadow-lg shadow-primary/20 transition-all hover:scale-105"
+        >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">Nova Transação</span>
         </Button>
       </div>
+
+      <NewTransactionModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        defaultEntityId={entityId}
+      />
     </header>
   )
 }
