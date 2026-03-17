@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ArrowRightLeft, PieChart, Settings, Wallet } from 'lucide-react'
+import { LayoutDashboard, ArrowRightLeft, PieChart, Settings, Wallet, ListTodo } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 const navigation = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
   { name: 'Transações', href: '/transacoes', icon: ArrowRightLeft },
+  { name: 'Obrigações', href: '/obrigacoes', icon: ListTodo },
   { name: 'Relatórios', href: '/relatorios', icon: PieChart },
   { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ]

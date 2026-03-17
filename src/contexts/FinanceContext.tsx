@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
 import { MOCK_TRANSACTIONS, ENTITIES_META, Transaction } from '@/lib/mock-data'
+import { MOCK_OBLIGATIONS, Obligation } from '@/lib/mock-obligations'
 
 export interface EntityState {
   id: string
@@ -16,6 +17,7 @@ interface FinanceContextData {
   toggleBalance: () => void
   transactions: Record<string, Transaction[]>
   entities: Record<string, EntityState>
+  obligations: Obligation[]
   addTransaction: (payload: any) => void
 }
 
@@ -25,6 +27,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   const [isBalanceHidden, setIsBalanceHidden] = useState(false)
   const [transactions, setTransactions] = useState<Record<string, Transaction[]>>(MOCK_TRANSACTIONS)
   const [entities, setEntities] = useState<Record<string, EntityState>>(ENTITIES_META)
+  const [obligations] = useState<Obligation[]>(MOCK_OBLIGATIONS)
 
   const toggleBalance = () => setIsBalanceHidden((prev) => !prev)
 
@@ -89,7 +92,14 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   return (
     <FinanceContext.Provider
-      value={{ isBalanceHidden, toggleBalance, transactions, entities, addTransaction }}
+      value={{
+        isBalanceHidden,
+        toggleBalance,
+        transactions,
+        entities,
+        obligations,
+        addTransaction,
+      }}
     >
       {children}
     </FinanceContext.Provider>

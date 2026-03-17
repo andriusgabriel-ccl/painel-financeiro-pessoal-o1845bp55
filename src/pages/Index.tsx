@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
 import { EntityCard } from '@/components/EntityCard'
+import { ObligationsWidget } from '@/components/ObligationsWidget'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { MOCK_CHART_DATA } from '@/lib/mock-data'
@@ -71,6 +72,10 @@ export default function Index() {
             styleDelay={index * 100}
           />
         ))}
+      </div>
+
+      <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <ObligationsWidget />
       </div>
 
       <div

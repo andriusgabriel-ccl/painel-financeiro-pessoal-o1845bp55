@@ -7,6 +7,7 @@ import { FinanceProvider } from '@/contexts/FinanceContext'
 import Layout from '@/components/Layout'
 import Index from '@/pages/Index'
 import Transactions from '@/pages/Transactions'
+import Obligations from '@/pages/Obligations'
 import Reports from '@/pages/Reports'
 import Settings from '@/pages/Settings'
 import NotFound from '@/pages/NotFound'
@@ -21,6 +22,7 @@ const App = () => (
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
             <Route path="/transacoes" element={<Transactions />} />
+            <Route path="/obrigacoes" element={<Obligations />} />
             <Route path="/relatorios" element={<Reports />} />
             <Route path="/configuracoes" element={<Settings />} />
           </Route>
