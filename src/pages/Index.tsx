@@ -1,10 +1,19 @@
 import { useFinance } from '@/contexts/FinanceContext'
-import { Building, CreditCard, Plane, LineChart, Activity, TrendingUp } from 'lucide-react'
+import {
+  Building,
+  CreditCard,
+  Plane,
+  LineChart,
+  Activity,
+  TrendingUp,
+  TrendingDown,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
 import { EntityCard, EntityData } from '@/components/EntityCard'
 import { formatCurrency, formatCompactCurrency } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 const MOCK_ENTITIES: EntityData[] = [
   {
