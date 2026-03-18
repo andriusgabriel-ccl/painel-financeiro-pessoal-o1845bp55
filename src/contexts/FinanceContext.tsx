@@ -15,13 +15,17 @@ import { ptBR } from 'date-fns/locale'
 
 export interface Transaction {
   id: string
+  entityId: string
   date: string
   rawDate: string
   description: string
   type: 'in' | 'out'
+  originalType: 'in' | 'out' | 'transfer'
   amount: number
   category: string
   origin: string
+  notes?: string
+  destinationEntityId?: string
 }
 
 export interface Obligation {
@@ -52,7 +56,9 @@ interface FinanceContextData {
   entities: Record<string, EntityState>
   obligations: Obligation[]
   addTransaction: (payload: any) => Promise<void>
+  editTransaction: (id: string, payload: any) => Promise<{ error: any }>
   deleteTransaction: (id: string) => Promise<{ error: any }>
+  importTransactions: (payloads: any[]) => Promise<{ error: any; count?: number }>
   deleteObligation: (id: string) => Promise<{ error: any }>
   categoriesByEntity: Record<string, string[]>
   chartData: any[]
@@ -141,37 +147,49 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       if (t.tipo === 'transfer') {
         result[t.entidade_id].push({
           id: t.id + '-out',
+          entityId: t.entidade_id,
           date: dateStr,
           rawDate: t.data,
           description: t.descricao,
           type: 'out',
+          originalType: 'transfer',
           amount: Number(t.valor),
           category: catName,
           origin: t.origem,
+          notes: t.observacoes || undefined,
+          destinationEntityId: t.entidade_destino_id || undefined,
         })
         if (t.entidade_destino_id) {
           if (!result[t.entidade_destino_id]) result[t.entidade_destino_id] = []
           result[t.entidade_destino_id].push({
             id: t.id + '-in',
+            entityId: t.entidade_destino_id,
             date: dateStr,
             rawDate: t.data,
             description: t.descricao,
             type: 'in',
+            originalType: 'transfer',
             amount: Number(t.valor),
             category: catName,
             origin: t.origem,
+            notes: t.observacoes || undefined,
+            destinationEntityId: t.entidade_destino_id || undefined,
           })
         }
       } else {
         result[t.entidade_id].push({
           id: t.id,
+          entityId: t.entidade_id,
           date: dateStr,
           rawDate: t.data,
           description: t.descricao,
           type: t.tipo as 'in' | 'out',
+          originalType: t.tipo as 'in' | 'out',
           amount: Number(t.valor),
           category: catName,
           origin: t.origem,
+          notes: t.observacoes || undefined,
+          destinationEntityId: undefined,
         })
       }
     })
@@ -288,6 +306,59 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const editTransaction = async (id: string, payload: any) => {
+    if (!user) return { error: 'No user' }
+    const cat = categoriesData.find(
+      (c) => c.entidade_id === payload.entityId && c.nome === payload.category,
+    )
+
+    const realId = id.replace('-in', '').replace('-out', '')
+
+    const { error } = await supabase
+      .from('lancamentos')
+      .update({
+        entidade_id: payload.entityId,
+        data: payload.date,
+        tipo: payload.type,
+        valor: payload.amount,
+        categoria_id: cat?.id || null,
+        descricao: payload.description,
+        observacoes: payload.notes || null,
+        entidade_destino_id: payload.destinationEntityId || null,
+        origem: payload.type === 'transfer' ? 'interna' : 'externa',
+      })
+      .eq('id', realId)
+
+    if (!error) {
+      fetchData()
+    }
+    return { error }
+  }
+
+  const importTransactions = async (payloads: any[]) => {
+    if (!user) return { error: 'No user' }
+
+    const inserts = payloads.map((p) => {
+      const cat = categoriesData.find((c) => c.entidade_id === p.entityId && c.nome === p.category)
+      return {
+        user_id: user.id,
+        entidade_id: p.entityId,
+        data: p.date,
+        descricao: p.description,
+        valor: p.amount,
+        tipo: p.type,
+        origem: 'externa',
+        categoria_id: cat?.id || null,
+      }
+    })
+
+    const { error } = await supabase.from('lancamentos').insert(inserts)
+    if (!error) {
+      fetchData()
+    }
+    return { error, count: inserts.length }
+  }
+
   const deleteTransaction = async (id: string) => {
     const realId = id.replace('-in', '').replace('-out', '')
     const { error } = await supabase.from('lancamentos').delete().eq('id', realId)
@@ -315,7 +386,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         entities,
         obligations,
         addTransaction,
+        editTransaction,
         deleteTransaction,
+        importTransactions,
         deleteObligation,
         categoriesByEntity,
         chartData,

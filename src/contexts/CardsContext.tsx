@@ -34,6 +34,7 @@ interface CardsContextData {
   categories: Category[]
   addCard: (card: Omit<CreditCard, 'id'>) => Promise<void>
   addCardTransactions: (txs: Omit<CardTransaction, 'id'>[]) => Promise<void>
+  editCardTransaction: (id: string, payload: any) => Promise<{ error: any }>
   deleteCardTransaction: (id: string) => Promise<{ error: any }>
   refreshData: () => Promise<void>
   isLoading: boolean
@@ -93,6 +94,25 @@ export function CardsProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const editCardTransaction = async (id: string, payload: any) => {
+    if (!user) return { error: 'No user' }
+    const { error } = await supabase
+      .from('lancamentos_cartao')
+      .update({
+        cartao_id: payload.cartao_id,
+        categoria_id: payload.categoria_id || null,
+        data: payload.data,
+        descricao: payload.descricao,
+        valor: payload.valor,
+      })
+      .eq('id', id)
+
+    if (!error) {
+      fetchData()
+    }
+    return { error }
+  }
+
   const deleteCardTransaction = async (id: string) => {
     const { error } = await supabase.from('lancamentos_cartao').delete().eq('id', id)
     if (!error) {
@@ -109,6 +129,7 @@ export function CardsProvider({ children }: { children: ReactNode }) {
         categories,
         addCard,
         addCardTransactions,
+        editCardTransaction,
         deleteCardTransaction,
         refreshData: fetchData,
         isLoading,

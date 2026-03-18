@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useCards } from '@/contexts/CardsContext'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
@@ -24,7 +25,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { format, parseISO } from 'date-fns'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Pencil } from 'lucide-react'
+import { EditCardTransactionModal } from '@/components/cards/EditCardTransactionModal'
 import { toast } from 'sonner'
 
 interface CardInvoiceProps {
@@ -34,6 +36,7 @@ interface CardInvoiceProps {
 export function CardInvoice({ cardId }: CardInvoiceProps) {
   const { cards, transactions, categories, deleteCardTransaction } = useCards()
   const { isBalanceHidden } = useFinance()
+  const [editingTx, setEditingTx] = useState<any>(null)
 
   if (!cardId) {
     return (
@@ -109,7 +112,7 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
                 <TableHead>Categoria</TableHead>
                 <TableHead className="text-center">Parcela</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
+                <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,34 +139,44 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
                       {formatCurrency(tx.valor, isBalanceHidden)}
                     </TableCell>
                     <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir Lançamento</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tem certeza que deseja excluir este lançamento?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              onClick={() => handleDelete(tx.id)}
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={() => setEditingTx(tx)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             >
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir Lançamento</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir este lançamento?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => handleDelete(tx.id)}
+                              >
+                                Excluir
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -172,6 +185,12 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
           </Table>
         )}
       </CardContent>
+
+      <EditCardTransactionModal
+        open={!!editingTx}
+        tx={editingTx}
+        onOpenChange={(o: boolean) => !o && setEditingTx(null)}
+      />
     </Card>
   )
 }
