@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -61,12 +61,16 @@ const schema = z
 
 export function NewTransactionModal({ open, onOpenChange, defaultEntityId }: any) {
   const { addTransaction, entities, categoriesByEntity } = useFinance()
-  const entitiesList = Object.values(entities)
 
+  const entitiesList = useMemo(() => Object.values(entities), [entities])
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema) })
   const entityId = form.watch('entityId')
   const type = form.watch('type')
-  const availableCategories = categoriesByEntity[entityId] || []
+
+  const availableCategories = useMemo(
+    () => categoriesByEntity[entityId] || [],
+    [categoriesByEntity, entityId],
+  )
 
   useEffect(() => {
     if (open) {
@@ -81,11 +85,14 @@ export function NewTransactionModal({ open, onOpenChange, defaultEntityId }: any
         destinationEntityId: '',
       })
     }
-  }, [open, defaultEntityId, form, entitiesList])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, defaultEntityId])
 
   useEffect(() => {
-    if (form.getValues('category') && !availableCategories.includes(form.getValues('category')))
+    const currentCat = form.getValues('category')
+    if (currentCat && !availableCategories.includes(currentCat)) {
       form.setValue('category', '')
+    }
   }, [entityId, availableCategories, form])
 
   const onSubmit = async (values: z.infer<typeof schema>) => {

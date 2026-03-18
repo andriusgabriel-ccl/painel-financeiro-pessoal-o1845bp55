@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { ArrowLeft, TrendingDown, TrendingUp, Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
+import { Line, LineChart, XAxis, YAxis } from 'recharts'
+import { ChartContainer, ChartTooltipContent, ChartTooltip } from '@/components/ui/chart'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import { cn, generateChartData } from '@/lib/utils'
@@ -29,6 +29,18 @@ export default function Transactions() {
   const chartData = useMemo(() => {
     return entity ? generateChartData(entity.balance) : []
   }, [entity])
+
+  const chartConfig = useMemo(
+    () => ({
+      balance: { label: 'Saldo', color: 'hsl(var(--primary))' },
+    }),
+    [],
+  )
+
+  const formatTooltip = useCallback(
+    (value: any) => formatCurrency(value as number, isBalanceHidden),
+    [isBalanceHidden],
+  )
 
   if (!entity) {
     return (
@@ -46,10 +58,6 @@ export default function Transactions() {
         </Card>
       </div>
     )
-  }
-
-  const chartConfig = {
-    balance: { label: 'Saldo', color: 'hsl(var(--primary))' },
   }
 
   return (
@@ -99,13 +107,8 @@ export default function Transactions() {
               <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
                 <XAxis dataKey="date" hide />
                 <YAxis domain={['auto', 'auto']} hide />
-                <Tooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value: any) => formatCurrency(value as number, isBalanceHidden)}
-                      indicator="line"
-                    />
-                  }
+                <ChartTooltip
+                  content={<ChartTooltipContent formatter={formatTooltip} indicator="line" />}
                 />
                 <Line
                   type="monotone"
