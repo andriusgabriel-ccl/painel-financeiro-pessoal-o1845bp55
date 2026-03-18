@@ -41,6 +41,30 @@ export type Database = {
           },
         ]
       }
+      configuracoes_milhas: {
+        Row: {
+          created_at: string
+          id: string
+          preco_venda_mercado: number
+          programa: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preco_venda_mercado?: number
+          programa: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preco_venda_mercado?: number
+          programa?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       entidades: {
         Row: {
           created_at: string
@@ -134,6 +158,42 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      movimentacoes_milhas: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          programa: string
+          quantidade: number
+          tipo: string
+          user_id: string
+          valor_total: number
+          valor_unitario: number
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          id?: string
+          programa: string
+          quantidade: number
+          tipo: string
+          user_id: string
+          valor_total: number
+          valor_unitario: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          programa?: string
+          quantidade?: number
+          tipo?: string
+          user_id?: string
+          valor_total?: number
+          valor_unitario?: number
+        }
+        Relationships: []
       }
       obrigacoes: {
         Row: {
@@ -332,6 +392,12 @@ export const Constants = {
 //   entidade_id: uuid (not null)
 //   nome: text (not null)
 //   created_at: timestamp with time zone (not null, default: now())
+// Table: configuracoes_milhas
+//   id: uuid (not null, default: gen_random_uuid())
+//   user_id: uuid (not null)
+//   programa: text (not null)
+//   preco_venda_mercado: numeric (not null, default: 0)
+//   created_at: timestamp with time zone (not null, default: now())
 // Table: entidades
 //   id: uuid (not null, default: gen_random_uuid())
 //   user_id: uuid (not null)
@@ -352,6 +418,16 @@ export const Constants = {
 //   entidade_destino_id: uuid (nullable)
 //   origem: text (not null)
 //   created_at: timestamp with time zone (not null, default: now())
+// Table: movimentacoes_milhas
+//   id: uuid (not null, default: gen_random_uuid())
+//   user_id: uuid (not null)
+//   data: date (not null)
+//   programa: text (not null)
+//   tipo: text (not null)
+//   quantidade: numeric (not null)
+//   valor_unitario: numeric (not null)
+//   valor_total: numeric (not null)
+//   created_at: timestamp with time zone (not null, default: now())
 // Table: obrigacoes
 //   id: uuid (not null, default: gen_random_uuid())
 //   user_id: uuid (not null)
@@ -368,6 +444,11 @@ export const Constants = {
 //   FOREIGN KEY categorias_entidade_id_fkey: FOREIGN KEY (entidade_id) REFERENCES entidades(id) ON DELETE CASCADE
 //   PRIMARY KEY categorias_pkey: PRIMARY KEY (id)
 //   FOREIGN KEY categorias_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+// Table: configuracoes_milhas
+//   PRIMARY KEY configuracoes_milhas_pkey: PRIMARY KEY (id)
+//   CHECK configuracoes_milhas_programa_check: CHECK ((programa = ANY (ARRAY['Smiles'::text, 'Latam Pass'::text, 'TudoAzul'::text])))
+//   FOREIGN KEY configuracoes_milhas_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+//   UNIQUE configuracoes_milhas_user_id_programa_key: UNIQUE (user_id, programa)
 // Table: entidades
 //   PRIMARY KEY entidades_pkey: PRIMARY KEY (id)
 //   CHECK entidades_tipo_check: CHECK ((tipo = ANY (ARRAY['PF'::text, 'PJ'::text])))
@@ -380,6 +461,11 @@ export const Constants = {
 //   PRIMARY KEY lancamentos_pkey: PRIMARY KEY (id)
 //   CHECK lancamentos_tipo_check: CHECK ((tipo = ANY (ARRAY['in'::text, 'out'::text, 'transfer'::text])))
 //   FOREIGN KEY lancamentos_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+// Table: movimentacoes_milhas
+//   PRIMARY KEY movimentacoes_milhas_pkey: PRIMARY KEY (id)
+//   CHECK movimentacoes_milhas_programa_check: CHECK ((programa = ANY (ARRAY['Smiles'::text, 'Latam Pass'::text, 'TudoAzul'::text])))
+//   CHECK movimentacoes_milhas_tipo_check: CHECK ((tipo = ANY (ARRAY['compra'::text, 'venda_agencia'::text, 'venda_terceiro'::text, 'transferencia'::text, 'expiracao'::text])))
+//   FOREIGN KEY movimentacoes_milhas_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: obrigacoes
 //   FOREIGN KEY obrigacoes_entidade_id_fkey: FOREIGN KEY (entidade_id) REFERENCES entidades(id) ON DELETE CASCADE
 //   PRIMARY KEY obrigacoes_pkey: PRIMARY KEY (id)
@@ -396,6 +482,16 @@ export const Constants = {
 //   Policy "authenticated_select_categorias" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //   Policy "authenticated_update_categorias" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//     WITH CHECK: (auth.uid() = user_id)
+// Table: configuracoes_milhas
+//   Policy "authenticated_delete_configuracoes_milhas" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_configuracoes_milhas" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_configuracoes_milhas" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_configuracoes_milhas" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: entidades
@@ -416,6 +512,16 @@ export const Constants = {
 //   Policy "authenticated_select_lancamentos" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //   Policy "authenticated_update_lancamentos" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//     WITH CHECK: (auth.uid() = user_id)
+// Table: movimentacoes_milhas
+//   Policy "authenticated_delete_movimentacoes_milhas" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_movimentacoes_milhas" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_movimentacoes_milhas" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_movimentacoes_milhas" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: obrigacoes
@@ -552,3 +658,7 @@ export const Constants = {
 //   END;
 //   $function$
 //
+
+// --- INDEXES ---
+// Table: configuracoes_milhas
+//   CREATE UNIQUE INDEX configuracoes_milhas_user_id_programa_key ON public.configuracoes_milhas USING btree (user_id, programa)
