@@ -1,15 +1,35 @@
 import { useState } from 'react'
 import { Plus, CreditCard as CreditCardIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { CardList } from '@/components/cards/CardList'
 import { CardInvoice } from '@/components/cards/CardInvoice'
 import { NewCardModal } from '@/components/cards/NewCardModal'
 import { NewCardTransactionModal } from '@/components/cards/NewCardTransactionModal'
+import { useCards } from '@/contexts/CardsContext'
 
 export default function Cards() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const [isNewCardOpen, setIsNewCardOpen] = useState(false)
   const [isNewTxOpen, setIsNewTxOpen] = useState(false)
+  const { isLoading } = useCards()
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6 animate-pulse">
+        <Skeleton className="h-12 w-48 rounded-xl" />
+        <div className="grid gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+          </div>
+          <div className="lg:col-span-8 flex flex-col gap-4">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in-up">

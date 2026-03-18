@@ -6,6 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, Tooltip } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
 import { EntityCard } from '@/components/EntityCard'
 import { ObligationsWidget } from '@/components/ObligationsWidget'
+import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -15,7 +16,8 @@ const chartConfig = {
 }
 
 export default function Index() {
-  const { isBalanceHidden, entities, transactions, chartData } = useFinance()
+  const { isBalanceHidden, entities, transactions, chartData, isLoading, monthlyVariation } =
+    useFinance()
   const entitiesList = Object.values(entities)
   const totalBalance = entitiesList.reduce((acc, curr) => acc + curr.balance, 0)
 
@@ -29,10 +31,26 @@ export default function Index() {
           amount: tx.amount,
           type: tx.type,
           date: tx.date,
+          rawDate: tx.rawDate,
         })),
       )
+      .sort((a, b) => new Date(b.rawDate).getTime() - new Date(a.rawDate).getTime())
       .slice(0, 5)
   }, [transactions, entities])
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6 w-full animate-pulse">
+        <Skeleton className="h-[200px] w-full rounded-xl" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-[180px] w-full rounded-xl" />
+          <Skeleton className="h-[180px] w-full rounded-xl" />
+          <Skeleton className="h-[180px] w-full rounded-xl" />
+          <Skeleton className="h-[180px] w-full rounded-xl" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,12 +69,31 @@ export default function Index() {
             </p>
           </div>
           <div className="flex items-center gap-3 bg-secondary/50 rounded-full px-4 py-2 border border-border/50 backdrop-blur-sm">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-emerald-500/20 text-emerald-500">
-              <TrendingUp className="h-4 w-4" />
+            <div
+              className={cn(
+                'flex items-center justify-center h-8 w-8 rounded-full',
+                monthlyVariation.isPositive
+                  ? 'bg-emerald-500/20 text-emerald-500'
+                  : 'bg-rose-500/20 text-rose-500',
+              )}
+            >
+              {monthlyVariation.isPositive ? (
+                <TrendingUp className="h-4 w-4" />
+              ) : (
+                <TrendingDown className="h-4 w-4" />
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Variação Mensal</span>
-              <span className="text-sm font-bold text-emerald-500">+12.4%</span>
+              <span
+                className={cn(
+                  'text-sm font-bold',
+                  monthlyVariation.isPositive ? 'text-emerald-500' : 'text-rose-500',
+                )}
+              >
+                {monthlyVariation.isPositive ? '+' : '-'}
+                {monthlyVariation.percentage}%
+              </span>
             </div>
           </div>
         </CardContent>

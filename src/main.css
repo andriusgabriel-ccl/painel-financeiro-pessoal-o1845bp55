@@ -6,54 +6,43 @@
 
 @layer base {
   :root {
-    /* Forcing Deep Charcoal Professional Dark Theme */
-    --background: 240 10% 4%; /* #09090b */
-    --foreground: 0 0% 98%;
-
-    --card: 240 6% 10%; /* #18181b */
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 6% 10%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 238 82% 67%; /* Indigo/Violet #6366f1 */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 238 82% 67%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 5% 15%; /* #27272a */
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 65%;
-
-    --accent: 240 5% 15%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 350 89% 60%; /* Rose #f43f5e */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 350 89% 60%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5% 15%;
-    --input: 240 5% 15%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
     --ring: 238 82% 67%;
-
     --radius: 0.75rem;
 
-    --sidebar-background: 240 8% 6%;
-    --sidebar-foreground: 0 0% 98%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 238 82% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 5% 15%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 238 82% 67%;
 
-    --chart-1: 160 84% 39%; /* Emerald #10b981 */
-    --chart-2: 350 89% 60%; /* Rose #f43f5e */
+    --chart-1: 160 84% 39%;
+    --chart-2: 350 89% 60%;
     --chart-3: 238 82% 67%;
     --chart-4: 43 100% 60%;
     --chart-5: 0 0% 98%;
   }
 
-  /* Redefining .dark to ensure it's identical if a library applies it */
   .dark {
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
@@ -82,11 +71,6 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 5% 15%;
     --sidebar-ring: 238 82% 67%;
-    --chart-1: 160 84% 39%;
-    --chart-2: 350 89% 60%;
-    --chart-3: 238 82% 67%;
-    --chart-4: 43 100% 60%;
-    --chart-5: 0 0% 98%;
   }
 
   body {
@@ -113,7 +97,7 @@
   }
 
   .glass-effect {
-    background: rgba(24, 24, 27, 0.6);
+    background: rgba(var(--background), 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }

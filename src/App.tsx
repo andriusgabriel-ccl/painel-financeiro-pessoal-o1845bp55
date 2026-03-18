@@ -7,6 +7,7 @@ import { MilesProvider } from '@/contexts/MilesContext'
 import { CardsProvider } from '@/contexts/CardsContext'
 import { AuthProvider } from '@/hooks/use-auth'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { ThemeProvider } from '@/components/theme-provider'
 
 import Layout from '@/components/Layout'
 import Index from '@/pages/Index'
@@ -22,34 +23,36 @@ import SignUp from '@/pages/SignUp'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
-    <AuthProvider>
-      <FinanceProvider>
-        <MilesProvider>
-          <CardsProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/transacoes" element={<Transactions />} />
-                    <Route path="/cartoes" element={<Cards />} />
-                    <Route path="/caixa-de-milhas" element={<MilesBox />} />
-                    <Route path="/obrigacoes" element={<Obligations />} />
-                    <Route path="/relatorios" element={<Reports />} />
-                    <Route path="/configuracoes" element={<Settings />} />
+    <ThemeProvider defaultTheme="dark" storageKey="financas-pro-theme">
+      <AuthProvider>
+        <FinanceProvider>
+          <MilesProvider>
+            <CardsProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<Layout />}>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/transacoes" element={<Transactions />} />
+                      <Route path="/cartoes" element={<Cards />} />
+                      <Route path="/caixa-de-milhas" element={<MilesBox />} />
+                      <Route path="/obrigacoes" element={<Obligations />} />
+                      <Route path="/relatorios" element={<Reports />} />
+                      <Route path="/configuracoes" element={<Settings />} />
+                    </Route>
                   </Route>
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TooltipProvider>
-          </CardsProvider>
-        </MilesProvider>
-      </FinanceProvider>
-    </AuthProvider>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </TooltipProvider>
+            </CardsProvider>
+          </MilesProvider>
+        </FinanceProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </BrowserRouter>
 )
 

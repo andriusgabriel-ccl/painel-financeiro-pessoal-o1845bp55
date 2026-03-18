@@ -1,16 +1,33 @@
 import { useState } from 'react'
 import { Ticket, Settings, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { MilesSummaryCard } from '@/components/miles/MilesSummaryCard'
 import { MilesHistoryTable } from '@/components/miles/MilesHistoryTable'
 import { NewMilesMovementModal } from '@/components/miles/NewMilesMovementModal'
 import { MilesConfigModal } from '@/components/miles/MilesConfigModal'
+import { useMiles } from '@/contexts/MilesContext'
 
 const PROGRAMS = ['Smiles', 'Latam Pass', 'TudoAzul']
 
 export default function MilesBox() {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false)
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
+  const { isLoading } = useMiles()
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6 animate-pulse">
+        <Skeleton className="h-12 w-[300px] rounded-xl" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Skeleton className="h-[200px] rounded-xl" />
+          <Skeleton className="h-[200px] rounded-xl" />
+          <Skeleton className="h-[200px] rounded-xl" />
+        </div>
+        <Skeleton className="h-[400px] w-full rounded-xl" />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">

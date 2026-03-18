@@ -11,14 +11,28 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { format, parseISO } from 'date-fns'
+import { Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface CardInvoiceProps {
   cardId: string | null
 }
 
 export function CardInvoice({ cardId }: CardInvoiceProps) {
-  const { cards, transactions, categories } = useCards()
+  const { cards, transactions, categories, deleteCardTransaction } = useCards()
   const { isBalanceHidden } = useFinance()
 
   if (!cardId) {
@@ -54,13 +68,18 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
     formattedDueDate = `${String(card.dia_vencimento).padStart(2, '0')}/${String(dueMonth + 1).padStart(2, '0')}/${dueYear}`
   }
 
-  // Filter for current open invoice (approximation: current month)
   const currentInvoiceTxs = cardTxs.filter((t) => {
     const d = new Date(t.data)
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear
   })
 
   const totalInvoice = currentInvoiceTxs.reduce((acc, t) => acc + Number(t.valor), 0)
+
+  const handleDelete = async (id: string) => {
+    const { error } = await deleteCardTransaction(id)
+    if (!error) toast.success('Lançamento excluído com sucesso.')
+    else toast.error('Erro ao excluir lançamento.')
+  }
 
   return (
     <Card className="border-border/50 bg-card/40 h-full flex flex-col">
@@ -90,6 +109,7 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
                 <TableHead>Categoria</TableHead>
                 <TableHead className="text-center">Parcela</TableHead>
                 <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -114,6 +134,36 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
                     </TableCell>
                     <TableCell className="text-right font-semibold tabular-nums text-foreground">
                       {formatCurrency(tx.valor, isBalanceHidden)}
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir Lançamento</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir este lançamento?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDelete(tx.id)}
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 )

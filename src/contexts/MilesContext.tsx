@@ -22,6 +22,7 @@ interface MilesContextData {
   configs: Record<string, number>
   isLoading: boolean
   addMovement: (movement: Omit<MilesMovement, 'id'>) => Promise<{ error: any }>
+  deleteMovement: (id: string) => Promise<{ error: any }>
   updateConfigs: (newConfigs: MilesConfig[]) => Promise<{ error: any }>
   refreshData: () => Promise<void>
 }
@@ -85,6 +86,14 @@ export function MilesProvider({ children }: { children: ReactNode }) {
     return { error }
   }
 
+  const deleteMovement = async (id: string) => {
+    const { error } = await supabase.from('movimentacoes_milhas').delete().eq('id', id)
+    if (!error) {
+      setMovements((prev) => prev.filter((m) => m.id !== id))
+    }
+    return { error }
+  }
+
   const updateConfigs = async (newConfigs: MilesConfig[]) => {
     if (!user) return { error: 'No user' }
     const payloads = newConfigs.map((c) => ({
@@ -109,7 +118,15 @@ export function MilesProvider({ children }: { children: ReactNode }) {
 
   return (
     <MilesContext.Provider
-      value={{ movements, configs, isLoading, addMovement, updateConfigs, refreshData: fetchData }}
+      value={{
+        movements,
+        configs,
+        isLoading,
+        addMovement,
+        deleteMovement,
+        updateConfigs,
+        refreshData: fetchData,
+      }}
     >
       {children}
     </MilesContext.Provider>

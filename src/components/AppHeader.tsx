@@ -5,6 +5,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { useFinance } from '@/contexts/FinanceContext'
 import { NewTransactionModal } from './NewTransactionModal'
+import { ThemeToggle } from './ThemeToggle'
 
 export function AppHeader() {
   const { isBalanceHidden, toggleBalance } = useFinance()
@@ -30,6 +31,8 @@ export function AppHeader() {
       </div>
 
       <div className="flex items-center gap-2">
+        <ThemeToggle />
+
         <Button
           variant="ghost"
           size="icon"

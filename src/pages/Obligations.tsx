@@ -11,12 +11,27 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
+import { Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Obligations() {
-  const { obligations, entities, isBalanceHidden } = useFinance()
+  const { obligations, entities, isBalanceHidden, isLoading, deleteObligation } = useFinance()
 
   const payables = useMemo(() => obligations.filter((o) => o.type === 'payable'), [obligations])
   const receivables = useMemo(
@@ -27,6 +42,12 @@ export default function Obligations() {
   const formatDate = (iso: string) => {
     const [y, m, d] = iso.split('-')
     return `${d}/${m}/${y}`
+  }
+
+  const handleDelete = async (id: string) => {
+    const { error } = await deleteObligation(id)
+    if (!error) toast.success('Obrigação excluída com sucesso.')
+    else toast.error('Erro ao excluir obrigação.')
   }
 
   const getUrgencyColor = (dateStr: string, status: string) => {
@@ -68,6 +89,12 @@ export default function Obligations() {
     const sorted = [...data].sort(
       (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
     )
+    if (sorted.length === 0)
+      return (
+        <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">
+          Nenhuma obrigação encontrada.
+        </div>
+      )
     return (
       <Table>
         <TableHeader>
@@ -77,6 +104,7 @@ export default function Obligations() {
             <TableHead>Data de Vencimento</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Valor</TableHead>
+            <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -106,11 +134,52 @@ export default function Obligations() {
                 <TableCell className="text-right tabular-nums font-semibold">
                   {formatCurrency(item.amount, isBalanceHidden)}
                 </TableCell>
+                <TableCell>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir Obrigação</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja excluir esta obrigação? Esta ação não pode ser
+                          desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
               </TableRow>
             )
           })}
         </TableBody>
       </Table>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="animate-fade-in-up space-y-6">
+        <Skeleton className="h-8 w-[200px] rounded-lg" />
+        <Skeleton className="h-10 w-[300px] rounded-lg" />
+        <Skeleton className="h-[400px] w-full rounded-xl" />
+      </div>
     )
   }
 

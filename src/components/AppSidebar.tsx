@@ -19,6 +19,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useAuth } from '@/hooks/use-auth'
 
 const navigation = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
@@ -32,6 +33,11 @@ const navigation = [
 
 export function AppSidebar() {
   const location = useLocation()
+  const { user } = useAuth()
+
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuário'
+  const userEmail = user?.email || 'Conta'
+  const initials = userName.substring(0, 2).toUpperCase()
 
   return (
     <Sidebar>
@@ -67,16 +73,13 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-border/50 p-4">
         <div className="flex items-center gap-3 rounded-xl bg-card p-3 shadow-subtle border border-border/50 transition-colors hover:bg-accent/50 cursor-pointer">
-          <Avatar className="h-10 w-10 border border-primary/20">
-            <AvatarImage
-              src="https://img.usecurling.com/ppl/thumbnail?gender=male&seed=4"
-              alt="User"
-            />
-            <AvatarFallback>JD</AvatarFallback>
+          <Avatar className="h-10 w-10 border border-primary/20 bg-muted">
+            <AvatarImage src={user?.user_metadata?.avatar_url || ''} alt={userName} />
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col overflow-hidden">
-            <span className="truncate text-sm font-semibold text-foreground">João Diretor</span>
-            <span className="truncate text-xs text-muted-foreground">Conta Premium</span>
+            <span className="truncate text-sm font-semibold text-foreground">{userName}</span>
+            <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
           </div>
         </div>
       </SidebarFooter>

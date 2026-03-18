@@ -9,11 +9,25 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { useMiles, MilesMovement } from '@/contexts/MilesContext'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import { parseISO, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export const TIPO_LABELS: Record<string, { label: string; color: string; sign: string }> = {
   compra: {
@@ -44,7 +58,7 @@ export const TIPO_LABELS: Record<string, { label: string; color: string; sign: s
 }
 
 export function MilesHistoryTable() {
-  const { movements } = useMiles()
+  const { movements, deleteMovement } = useMiles()
   const { isBalanceHidden } = useFinance()
 
   const formatDate = (isoStr: string) => {
@@ -56,6 +70,12 @@ export function MilesHistoryTable() {
   }
 
   const formatMiles = (val: number) => new Intl.NumberFormat('pt-BR').format(val)
+
+  const handleDelete = async (id: string) => {
+    const { error } = await deleteMovement(id)
+    if (!error) toast.success('Movimentação excluída com sucesso.')
+    else toast.error('Erro ao excluir movimentação.')
+  }
 
   return (
     <Card
@@ -75,12 +95,13 @@ export function MilesHistoryTable() {
               <TableHead className="text-right">Quantidade</TableHead>
               <TableHead className="text-right">Val. Unitário (1k)</TableHead>
               <TableHead className="text-right">Valor Total</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {movements.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
                   Nenhuma movimentação encontrada.
                 </TableCell>
               </TableRow>
@@ -114,6 +135,36 @@ export function MilesHistoryTable() {
                     </TableCell>
                     <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">
                       {formatCurrency(mov.valor_total, isBalanceHidden)}
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir Movimentação</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir esta movimentação?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDelete(mov.id)}
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 )

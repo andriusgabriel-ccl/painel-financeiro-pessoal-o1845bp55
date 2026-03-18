@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { Building, CreditCard, Plane, LineChart, CircleDashed } from 'lucide-react'
@@ -8,6 +16,7 @@ import { ptBR } from 'date-fns/locale'
 export interface Transaction {
   id: string
   date: string
+  rawDate: string
   description: string
   type: 'in' | 'out'
   amount: number
@@ -36,14 +45,18 @@ export interface EntityState {
 }
 
 interface FinanceContextData {
+  isLoading: boolean
   isBalanceHidden: boolean
   toggleBalance: () => void
   transactions: Record<string, Transaction[]>
   entities: Record<string, EntityState>
   obligations: Obligation[]
   addTransaction: (payload: any) => Promise<void>
+  deleteTransaction: (id: string) => Promise<{ error: any }>
+  deleteObligation: (id: string) => Promise<{ error: any }>
   categoriesByEntity: Record<string, string[]>
   chartData: any[]
+  monthlyVariation: { percentage: string; isPositive: boolean }
   refreshData: () => void
 }
 
@@ -58,6 +71,7 @@ const iconMap: Record<string, any> = {
 
 export function FinanceProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
+  const [isLoading, setIsLoading] = useState(true)
   const [isBalanceHidden, setIsBalanceHidden] = useState(false)
   const [entitiesData, setEntitiesData] = useState<any[]>([])
   const [categoriesData, setCategoriesData] = useState<any[]>([])
@@ -66,8 +80,9 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   const toggleBalance = () => setIsBalanceHidden((prev) => !prev)
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return
+    setIsLoading(true)
     const [entRes, catRes, lanRes, obrRes] = await Promise.all([
       supabase.from('entidades').select('*').order('created_at'),
       supabase.from('categorias').select('*'),
@@ -78,11 +93,12 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     if (catRes.data) setCategoriesData(catRes.data)
     if (lanRes.data) setTransactionsData(lanRes.data)
     if (obrRes.data) setObligationsData(obrRes.data)
-  }
+    setIsLoading(false)
+  }, [user])
 
   useEffect(() => {
     fetchData()
-  }, [user])
+  }, [fetchData])
 
   const entities = useMemo(() => {
     const result: Record<string, EntityState> = {}
@@ -126,6 +142,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         result[t.entidade_id].push({
           id: t.id + '-out',
           date: dateStr,
+          rawDate: t.data,
           description: t.descricao,
           type: 'out',
           amount: Number(t.valor),
@@ -137,6 +154,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
           result[t.entidade_destino_id].push({
             id: t.id + '-in',
             date: dateStr,
+            rawDate: t.data,
             description: t.descricao,
             type: 'in',
             amount: Number(t.valor),
@@ -148,6 +166,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         result[t.entidade_id].push({
           id: t.id,
           date: dateStr,
+          rawDate: t.data,
           description: t.descricao,
           type: t.tipo as 'in' | 'out',
           amount: Number(t.valor),
@@ -210,6 +229,38 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }))
   }, [transactionsData])
 
+  const monthlyVariation = useMemo(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1
+    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear
+
+    let currentBalance = 0
+    let prevBalance = 0
+
+    transactionsData.forEach((t) => {
+      if (t.tipo === 'transfer') return
+      const d = parseISO(t.data)
+      const val = Number(t.valor)
+      const isCurrent = d.getMonth() === currentMonth && d.getFullYear() === currentYear
+      const isPrev = d.getMonth() === prevMonth && d.getFullYear() === prevYear
+
+      if (isCurrent) currentBalance += t.tipo === 'in' ? val : -val
+      if (isPrev) prevBalance += t.tipo === 'in' ? val : -val
+    })
+
+    if (prevBalance === 0) {
+      if (currentBalance === 0) return { percentage: '0.0', isPositive: true }
+      return { percentage: '100.0', isPositive: currentBalance > 0 }
+    }
+    const variation = ((currentBalance - prevBalance) / Math.abs(prevBalance)) * 100
+    return {
+      percentage: Math.abs(variation).toFixed(1),
+      isPositive: variation >= 0,
+    }
+  }, [transactionsData])
+
   const addTransaction = async (payload: any) => {
     if (!user) return
     const cat = categoriesData.find(
@@ -237,17 +288,38 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const deleteTransaction = async (id: string) => {
+    const realId = id.replace('-in', '').replace('-out', '')
+    const { error } = await supabase.from('lancamentos').delete().eq('id', realId)
+    if (!error) {
+      setTransactionsData((prev) => prev.filter((t) => t.id !== realId))
+    }
+    return { error }
+  }
+
+  const deleteObligation = async (id: string) => {
+    const { error } = await supabase.from('obrigacoes').delete().eq('id', id)
+    if (!error) {
+      setObligationsData((prev) => prev.filter((o) => o.id !== id))
+    }
+    return { error }
+  }
+
   return (
     <FinanceContext.Provider
       value={{
+        isLoading,
         isBalanceHidden,
         toggleBalance,
         transactions,
         entities,
         obligations,
         addTransaction,
+        deleteTransaction,
+        deleteObligation,
         categoriesByEntity,
         chartData,
+        monthlyVariation,
         refreshData: fetchData,
       }}
     >
