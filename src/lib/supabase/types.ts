@@ -475,63 +475,63 @@ export const Constants = {
 
 // --- ROW LEVEL SECURITY POLICIES ---
 // Table: categorias
-//   Policy "authenticated_delete_categorias" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "categorias_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_categorias" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "categorias_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_categorias" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "categorias_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_categorias" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "categorias_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: configuracoes_milhas
-//   Policy "authenticated_delete_configuracoes_milhas" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "configuracoes_milhas_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_configuracoes_milhas" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "configuracoes_milhas_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_configuracoes_milhas" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "configuracoes_milhas_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_configuracoes_milhas" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "configuracoes_milhas_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: entidades
-//   Policy "authenticated_delete_entidades" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "entidades_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_entidades" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "entidades_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_entidades" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "entidades_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_entidades" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "entidades_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: lancamentos
-//   Policy "authenticated_delete_lancamentos" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "lancamentos_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_lancamentos" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "lancamentos_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_lancamentos" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "lancamentos_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_lancamentos" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "lancamentos_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: movimentacoes_milhas
-//   Policy "authenticated_delete_movimentacoes_milhas" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "movimentacoes_milhas_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_movimentacoes_milhas" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "movimentacoes_milhas_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_movimentacoes_milhas" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "movimentacoes_milhas_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_movimentacoes_milhas" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "movimentacoes_milhas_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: obrigacoes
-//   Policy "authenticated_delete_obrigacoes" (DELETE, PERMISSIVE) roles={authenticated}
+//   Policy "obrigacoes_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_insert_obrigacoes" (INSERT, PERMISSIVE) roles={authenticated}
+//   Policy "obrigacoes_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
 //     WITH CHECK: (auth.uid() = user_id)
-//   Policy "authenticated_select_obrigacoes" (SELECT, PERMISSIVE) roles={authenticated}
+//   Policy "obrigacoes_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
-//   Policy "authenticated_update_obrigacoes" (UPDATE, PERMISSIVE) roles={authenticated}
+//   Policy "obrigacoes_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 

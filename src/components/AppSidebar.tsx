@@ -7,6 +7,7 @@ import {
   Wallet,
   ListTodo,
   Ticket,
+  CreditCard,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -22,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 const navigation = [
   { name: 'Painel', href: '/', icon: LayoutDashboard },
   { name: 'Transações', href: '/transacoes', icon: ArrowRightLeft },
+  { name: 'Cartões de Crédito', href: '/cartoes', icon: CreditCard },
   { name: 'Caixa de Milhas', href: '/caixa-de-milhas', icon: Ticket },
   { name: 'Obrigações', href: '/obrigacoes', icon: ListTodo },
   { name: 'Relatórios', href: '/relatorios', icon: PieChart },
