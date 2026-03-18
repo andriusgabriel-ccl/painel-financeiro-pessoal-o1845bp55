@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useFinance } from '@/contexts/FinanceContext'
 import { Activity, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, Tooltip } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
 import { EntityCard } from '@/components/EntityCard'
 import { ObligationsWidget } from '@/components/ObligationsWidget'
@@ -87,62 +87,56 @@ export default function Index() {
           </CardHeader>
           <CardContent className="px-2 sm:px-6">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-                  <CartesianGrid
-                    vertical={false}
-                    strokeDasharray="3 3"
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="rounded-lg border border-border bg-popover p-3 shadow-xl">
-                            <p className="mb-2 font-medium">{payload[0].payload.month}</p>
-                            {payload.map((entry, index) => (
+              <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                />
+                <Tooltip
+                  cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="rounded-lg border border-border bg-popover p-3 shadow-xl">
+                          <p className="mb-2 font-medium">{payload[0].payload.month}</p>
+                          {payload.map((entry, index) => (
+                            <div
+                              key={`chart-tooltip-${entry.name || index}`}
+                              className="flex items-center gap-2 text-sm"
+                            >
                               <div
-                                key={`chart-tooltip-${entry.name || index}`}
-                                className="flex items-center gap-2 text-sm"
-                              >
-                                <div
-                                  className="h-2 w-2 rounded-full"
-                                  style={{ backgroundColor: entry.color }}
-                                />
-                                <span className="text-muted-foreground">{entry.name}:</span>
-                                <span className="font-semibold tabular-nums">
-                                  {formatCurrency(entry.value as number, isBalanceHidden)}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Bar
-                    dataKey="entradas"
-                    fill="var(--color-entradas)"
-                    radius={[4, 4, 0, 0]}
-                    barSize={32}
-                  />
-                  <Bar
-                    dataKey="saidas"
-                    fill="var(--color-saidas)"
-                    radius={[4, 4, 0, 0]}
-                    barSize={32}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+                                className="h-2 w-2 rounded-full"
+                                style={{ backgroundColor: entry.color }}
+                              />
+                              <span className="text-muted-foreground">{entry.name}:</span>
+                              <span className="font-semibold tabular-nums">
+                                {formatCurrency(entry.value as number, isBalanceHidden)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }
+                    return null
+                  }}
+                />
+                <Bar
+                  dataKey="entradas"
+                  fill="var(--color-entradas)"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
+                <Bar
+                  dataKey="saidas"
+                  fill="var(--color-saidas)"
+                  radius={[4, 4, 0, 0]}
+                  barSize={32}
+                />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>

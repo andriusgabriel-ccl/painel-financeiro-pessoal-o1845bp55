@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Line, LineChart, Tooltip, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
@@ -96,28 +96,26 @@ export default function Transactions() {
           </CardHeader>
           <CardContent className="h-[120px] px-0 pb-0">
             <ChartContainer config={chartConfig} className="h-full w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-                  <XAxis dataKey="date" hide />
-                  <YAxis domain={['auto', 'auto']} hide />
-                  <Tooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value: any) => formatCurrency(value as number, isBalanceHidden)}
-                        indicator="line"
-                      />
-                    }
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="balance"
-                    stroke="var(--color-balance)"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 4, fill: 'var(--color-balance)' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+                <XAxis dataKey="date" hide />
+                <YAxis domain={['auto', 'auto']} hide />
+                <Tooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value: any) => formatCurrency(value as number, isBalanceHidden)}
+                      indicator="line"
+                    />
+                  }
+                />
+                <Line
+                  type="monotone"
+                  dataKey="balance"
+                  stroke="var(--color-balance)"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, fill: 'var(--color-balance)' }}
+                />
+              </LineChart>
             </ChartContainer>
           </CardContent>
         </Card>

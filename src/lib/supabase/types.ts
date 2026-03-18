@@ -389,19 +389,43 @@ export const Constants = {
 
 // --- ROW LEVEL SECURITY POLICIES ---
 // Table: categorias
-//   Policy "Users can manage their own categorias" (ALL, PERMISSIVE) roles={authenticated}
+//   Policy "authenticated_delete_categorias" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_categorias" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_categorias" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_categorias" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: entidades
-//   Policy "Users can manage their own entidades" (ALL, PERMISSIVE) roles={authenticated}
+//   Policy "authenticated_delete_entidades" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_entidades" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_entidades" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_entidades" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: lancamentos
-//   Policy "Users can manage their own lancamentos" (ALL, PERMISSIVE) roles={authenticated}
+//   Policy "authenticated_delete_lancamentos" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_lancamentos" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_lancamentos" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_lancamentos" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: obrigacoes
-//   Policy "Users can manage their own obrigacoes" (ALL, PERMISSIVE) roles={authenticated}
+//   Policy "authenticated_delete_obrigacoes" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_insert_obrigacoes" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "authenticated_select_obrigacoes" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "authenticated_update_obrigacoes" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 
