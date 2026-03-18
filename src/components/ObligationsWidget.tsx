@@ -65,7 +65,7 @@ export function ObligationsWidget() {
           </TableHeader>
           <TableBody>
             {widgetData.map((row) => (
-              <TableRow key={row.entity.id}>
+              <TableRow key={`obligation-row-${row.entity.id}`}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2 whitespace-nowrap">
                     <row.entity.icon className="h-4 w-4 text-muted-foreground" />

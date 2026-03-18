@@ -24,7 +24,7 @@ export default function Index() {
     return Object.entries(transactions)
       .flatMap(([eId, txs]) =>
         txs.map((tx) => ({
-          id: tx.id,
+          id: `${eId}-${tx.id}`,
           title: tx.description,
           entity: entities[eId]?.name || eId,
           amount: tx.amount,
@@ -66,7 +66,7 @@ export default function Index() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {entitiesList.map((entity, index) => (
           <EntityCard
-            key={entity.id}
+            key={`entity-card-${entity.id}`}
             entity={entity}
             isBalanceHidden={isBalanceHidden}
             styleDelay={index * 100}
@@ -113,7 +113,10 @@ export default function Index() {
                           <div className="rounded-lg border border-border bg-popover p-3 shadow-xl">
                             <p className="mb-2 font-medium">{payload[0].payload.month}</p>
                             {payload.map((entry, index) => (
-                              <div key={index} className="flex items-center gap-2 text-sm">
+                              <div
+                                key={`chart-tooltip-${entry.name || index}`}
+                                className="flex items-center gap-2 text-sm"
+                              >
                                 <div
                                   className="h-2 w-2 rounded-full"
                                   style={{ backgroundColor: entry.color }}
@@ -155,7 +158,7 @@ export default function Index() {
           <CardContent className="flex-1 px-4 pb-4">
             <div className="space-y-5">
               {recentActivities.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between">
+                <div key={`activity-${tx.id}`} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
