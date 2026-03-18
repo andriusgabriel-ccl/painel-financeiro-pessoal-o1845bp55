@@ -22,15 +22,17 @@ export function CardList({ selectedId, onSelect }: CardListProps) {
     )
   }
 
+  const today = new Date()
+  const currentMonth = today.getMonth()
+  const currentYear = today.getFullYear()
+  const currentDay = today.getDate()
+
   return (
     <div className="flex flex-col gap-4">
       {cards.map((card) => {
         const entity = entities[card.entidade_id]
 
         // Calculate spent in the current month as an approximation for the open invoice
-        const currentMonth = new Date().getMonth()
-        const currentYear = new Date().getFullYear()
-
         const spent = transactions
           .filter((t) => {
             const d = new Date(t.data)
@@ -43,6 +45,19 @@ export function CardList({ selectedId, onSelect }: CardListProps) {
           .reduce((acc, t) => acc + Number(t.valor), 0)
 
         const available = card.limite_total - spent
+
+        let dueMonth = currentMonth
+        let dueYear = currentYear
+
+        if (currentDay > card.dia_vencimento) {
+          dueMonth += 1
+          if (dueMonth > 11) {
+            dueMonth = 0
+            dueYear += 1
+          }
+        }
+
+        const formattedDueDate = `${String(card.dia_vencimento).padStart(2, '0')}/${String(dueMonth + 1).padStart(2, '0')}/${dueYear}`
 
         return (
           <Card
@@ -91,7 +106,7 @@ export function CardList({ selectedId, onSelect }: CardListProps) {
               <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground bg-muted/30 p-2 rounded-md">
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />
-                  <span>Vencimento: dia {card.dia_vencimento}</span>
+                  <span>Vencimento: {formattedDueDate}</span>
                 </div>
                 <span>Melhor dia: {card.melhor_dia_compra}</span>
               </div>

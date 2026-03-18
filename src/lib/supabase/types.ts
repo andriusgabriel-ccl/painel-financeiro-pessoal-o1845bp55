@@ -9,6 +9,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      cartoes: {
+        Row: {
+          created_at: string
+          dia_vencimento: number
+          entidade_id: string
+          id: string
+          limite_total: number
+          melhor_dia_compra: number
+          nome: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dia_vencimento: number
+          entidade_id: string
+          id?: string
+          limite_total?: number
+          melhor_dia_compra: number
+          nome: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dia_vencimento?: number
+          entidade_id?: string
+          id?: string
+          limite_total?: number
+          melhor_dia_compra?: number
+          nome?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'cartoes_entidade_id_fkey'
+            columns: ['entidade_id']
+            isOneToOne: false
+            referencedRelation: 'entidades'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       categorias: {
         Row: {
           created_at: string
@@ -155,6 +196,60 @@ export type Database = {
             columns: ['entidade_id']
             isOneToOne: false
             referencedRelation: 'entidades'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      lancamentos_cartao: {
+        Row: {
+          cartao_id: string
+          categoria_id: string | null
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          parcela_atual: number | null
+          total_parcelas: number | null
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          cartao_id: string
+          categoria_id?: string | null
+          created_at?: string
+          data: string
+          descricao: string
+          id?: string
+          parcela_atual?: number | null
+          total_parcelas?: number | null
+          user_id: string
+          valor: number
+        }
+        Update: {
+          cartao_id?: string
+          categoria_id?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          parcela_atual?: number | null
+          total_parcelas?: number | null
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'lancamentos_cartao_cartao_id_fkey'
+            columns: ['cartao_id']
+            isOneToOne: false
+            referencedRelation: 'cartoes'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'lancamentos_cartao_categoria_id_fkey'
+            columns: ['categoria_id']
+            isOneToOne: false
+            referencedRelation: 'categorias'
             referencedColumns: ['id']
           },
         ]
@@ -386,6 +481,15 @@ export const Constants = {
 // --- COLUMN TYPES (actual PostgreSQL types) ---
 // Use this to know the real database type when writing migrations.
 // "string" in TypeScript types above may be uuid, text, varchar, timestamptz, etc.
+// Table: cartoes
+//   id: uuid (not null, default: gen_random_uuid())
+//   user_id: uuid (not null)
+//   entidade_id: uuid (not null)
+//   nome: text (not null)
+//   limite_total: numeric (not null, default: 0)
+//   melhor_dia_compra: integer (not null)
+//   dia_vencimento: integer (not null)
+//   created_at: timestamp with time zone (not null, default: now())
 // Table: categorias
 //   id: uuid (not null, default: gen_random_uuid())
 //   user_id: uuid (not null)
@@ -418,6 +522,17 @@ export const Constants = {
 //   entidade_destino_id: uuid (nullable)
 //   origem: text (not null)
 //   created_at: timestamp with time zone (not null, default: now())
+// Table: lancamentos_cartao
+//   id: uuid (not null, default: gen_random_uuid())
+//   user_id: uuid (not null)
+//   cartao_id: uuid (not null)
+//   categoria_id: uuid (nullable)
+//   data: date (not null)
+//   descricao: text (not null)
+//   valor: numeric (not null)
+//   parcela_atual: integer (nullable, default: 1)
+//   total_parcelas: integer (nullable, default: 1)
+//   created_at: timestamp with time zone (not null, default: now())
 // Table: movimentacoes_milhas
 //   id: uuid (not null, default: gen_random_uuid())
 //   user_id: uuid (not null)
@@ -440,6 +555,10 @@ export const Constants = {
 //   created_at: timestamp with time zone (not null, default: now())
 
 // --- CONSTRAINTS ---
+// Table: cartoes
+//   FOREIGN KEY cartoes_entidade_id_fkey: FOREIGN KEY (entidade_id) REFERENCES entidades(id) ON DELETE CASCADE
+//   PRIMARY KEY cartoes_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY cartoes_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: categorias
 //   FOREIGN KEY categorias_entidade_id_fkey: FOREIGN KEY (entidade_id) REFERENCES entidades(id) ON DELETE CASCADE
 //   PRIMARY KEY categorias_pkey: PRIMARY KEY (id)
@@ -461,6 +580,11 @@ export const Constants = {
 //   PRIMARY KEY lancamentos_pkey: PRIMARY KEY (id)
 //   CHECK lancamentos_tipo_check: CHECK ((tipo = ANY (ARRAY['in'::text, 'out'::text, 'transfer'::text])))
 //   FOREIGN KEY lancamentos_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+// Table: lancamentos_cartao
+//   FOREIGN KEY lancamentos_cartao_cartao_id_fkey: FOREIGN KEY (cartao_id) REFERENCES cartoes(id) ON DELETE CASCADE
+//   FOREIGN KEY lancamentos_cartao_categoria_id_fkey: FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE SET NULL
+//   PRIMARY KEY lancamentos_cartao_pkey: PRIMARY KEY (id)
+//   FOREIGN KEY lancamentos_cartao_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 // Table: movimentacoes_milhas
 //   PRIMARY KEY movimentacoes_milhas_pkey: PRIMARY KEY (id)
 //   CHECK movimentacoes_milhas_programa_check: CHECK ((programa = ANY (ARRAY['Smiles'::text, 'Latam Pass'::text, 'TudoAzul'::text])))
@@ -474,6 +598,16 @@ export const Constants = {
 //   FOREIGN KEY obrigacoes_user_id_fkey: FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
 
 // --- ROW LEVEL SECURITY POLICIES ---
+// Table: cartoes
+//   Policy "cartoes_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "cartoes_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "cartoes_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "cartoes_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//     WITH CHECK: (auth.uid() = user_id)
 // Table: categorias
 //   Policy "categorias_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
@@ -512,6 +646,16 @@ export const Constants = {
 //   Policy "lancamentos_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //   Policy "lancamentos_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//     WITH CHECK: (auth.uid() = user_id)
+// Table: lancamentos_cartao
+//   Policy "lancamentos_cartao_delete_policy" (DELETE, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "lancamentos_cartao_insert_policy" (INSERT, PERMISSIVE) roles={authenticated}
+//     WITH CHECK: (auth.uid() = user_id)
+//   Policy "lancamentos_cartao_select_policy" (SELECT, PERMISSIVE) roles={authenticated}
+//     USING: (auth.uid() = user_id)
+//   Policy "lancamentos_cartao_update_policy" (UPDATE, PERMISSIVE) roles={authenticated}
 //     USING: (auth.uid() = user_id)
 //     WITH CHECK: (auth.uid() = user_id)
 // Table: movimentacoes_milhas

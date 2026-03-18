@@ -34,8 +34,25 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
   const card = cards.find((c) => c.id === cardId)
   const cardTxs = transactions.filter((t) => t.cartao_id === cardId)
 
-  const currentMonth = new Date().getMonth()
-  const currentYear = new Date().getFullYear()
+  const today = new Date()
+  const currentMonth = today.getMonth()
+  const currentYear = today.getFullYear()
+  const currentDay = today.getDate()
+
+  let dueMonth = currentMonth
+  let dueYear = currentYear
+  let formattedDueDate = ''
+
+  if (card) {
+    if (currentDay > card.dia_vencimento) {
+      dueMonth += 1
+      if (dueMonth > 11) {
+        dueMonth = 0
+        dueYear += 1
+      }
+    }
+    formattedDueDate = `${String(card.dia_vencimento).padStart(2, '0')}/${String(dueMonth + 1).padStart(2, '0')}/${dueYear}`
+  }
 
   // Filter for current open invoice (approximation: current month)
   const currentInvoiceTxs = cardTxs.filter((t) => {
@@ -50,9 +67,7 @@ export function CardInvoice({ cardId }: CardInvoiceProps) {
       <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 pb-4">
         <div>
           <CardTitle className="text-xl">Fatura Atual</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Vencimento: {card?.dia_vencimento}/{String(currentMonth + 1).padStart(2, '0')}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Vencimento: {formattedDueDate}</p>
         </div>
         <div className="text-right">
           <p className="text-sm font-medium text-muted-foreground mb-1">Total da Fatura</p>
