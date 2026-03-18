@@ -8,7 +8,6 @@ import { EntityCard } from '@/components/EntityCard'
 import { ObligationsWidget } from '@/components/ObligationsWidget'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { MOCK_CHART_DATA } from '@/lib/mock-data'
 
 const chartConfig = {
   entradas: { label: 'Entradas', color: 'hsl(var(--chart-1))' },
@@ -16,7 +15,7 @@ const chartConfig = {
 }
 
 export default function Index() {
-  const { isBalanceHidden, entities, transactions } = useFinance()
+  const { isBalanceHidden, entities, transactions, chartData } = useFinance()
   const entitiesList = Object.values(entities)
   const totalBalance = entitiesList.reduce((acc, curr) => acc + curr.balance, 0)
 
@@ -89,10 +88,7 @@ export default function Index() {
           <CardContent className="px-2 sm:px-6">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={MOCK_CHART_DATA}
-                  margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
-                >
+                <BarChart data={chartData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid
                     vertical={false}
                     strokeDasharray="3 3"

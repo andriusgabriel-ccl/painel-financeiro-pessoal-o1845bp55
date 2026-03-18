@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
-import { useFinance } from '@/contexts/FinanceContext'
-import { Obligation } from '@/lib/mock-obligations'
+import { useFinance, Obligation } from '@/contexts/FinanceContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {

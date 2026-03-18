@@ -29,7 +29,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar'
 import { cn } from '@/lib/utils'
 import { useFinance } from '@/contexts/FinanceContext'
-import { CATEGORIES_BY_ENTITY } from '@/lib/mock-data'
 import { toast } from 'sonner'
 
 const schema = z
@@ -61,19 +60,18 @@ const schema = z
   })
 
 export function NewTransactionModal({ open, onOpenChange, defaultEntityId }: any) {
-  const { addTransaction, entities } = useFinance()
+  const { addTransaction, entities, categoriesByEntity } = useFinance()
   const entitiesList = Object.values(entities)
 
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema) })
   const entityId = form.watch('entityId')
   const type = form.watch('type')
-  const availableCategories =
-    CATEGORIES_BY_ENTITY[entityId as keyof typeof CATEGORIES_BY_ENTITY] || []
+  const availableCategories = categoriesByEntity[entityId] || []
 
   useEffect(() => {
     if (open) {
       form.reset({
-        entityId: defaultEntityId || 'sp',
+        entityId: defaultEntityId || (entitiesList[0]?.id ?? ''),
         date: new Date(),
         type: 'out',
         amount: '' as any,
@@ -83,15 +81,18 @@ export function NewTransactionModal({ open, onOpenChange, defaultEntityId }: any
         destinationEntityId: '',
       })
     }
-  }, [open, defaultEntityId, form])
+  }, [open, defaultEntityId, form, entitiesList])
 
   useEffect(() => {
     if (form.getValues('category') && !availableCategories.includes(form.getValues('category')))
       form.setValue('category', '')
   }, [entityId, availableCategories, form])
 
-  const onSubmit = (values: z.infer<typeof schema>) => {
-    addTransaction({ ...values, date: format(values.date, 'dd MMM', { locale: ptBR }) })
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    await addTransaction({
+      ...values,
+      date: format(values.date, 'yyyy-MM-dd'),
+    })
     toast.success('Transação registrada com sucesso!')
     onOpenChange(false)
   }

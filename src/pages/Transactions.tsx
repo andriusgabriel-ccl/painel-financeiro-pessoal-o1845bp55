@@ -16,8 +16,7 @@ import { Line, LineChart, Tooltip, ResponsiveContainer, XAxis, YAxis } from 'rec
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
 import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
-import { cn } from '@/lib/utils'
-import { generateChartData } from '@/lib/mock-data'
+import { cn, generateChartData } from '@/lib/utils'
 
 export default function Transactions() {
   const [searchParams] = useSearchParams()
