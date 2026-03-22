@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -26,8 +26,9 @@ import { useFinance } from '@/contexts/FinanceContext'
 import { formatCurrency } from '@/lib/format'
 import { parseISO, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
+import { EditMilesMovementModal } from './EditMilesMovementModal'
 
 export const TIPO_LABELS: Record<string, { label: string; color: string; sign: string }> = {
   compra: {
@@ -60,6 +61,7 @@ export const TIPO_LABELS: Record<string, { label: string; color: string; sign: s
 export function MilesHistoryTable() {
   const { movements, deleteMovement } = useMiles()
   const { isBalanceHidden } = useFinance()
+  const [editingMov, setEditingMov] = useState<MilesMovement | null>(null)
 
   const formatDate = (isoStr: string) => {
     try {
@@ -78,101 +80,119 @@ export function MilesHistoryTable() {
   }
 
   return (
-    <Card
-      className="border-border/40 bg-card/40 animate-fade-in-up"
-      style={{ animationDelay: '300ms' }}
-    >
-      <CardHeader>
-        <CardTitle className="text-lg font-medium">Histórico de Movimentações</CardTitle>
-      </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Data</TableHead>
-              <TableHead>Programa</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead className="text-right">Quantidade</TableHead>
-              <TableHead className="text-right">Val. Unitário (1k)</TableHead>
-              <TableHead className="text-right">Valor Total</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {movements.length === 0 ? (
+    <>
+      <Card
+        className="border-border/40 bg-card/40 animate-fade-in-up"
+        style={{ animationDelay: '300ms' }}
+      >
+        <CardHeader>
+          <CardTitle className="text-lg font-medium">Histórico de Movimentações</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
-                  Nenhuma movimentação encontrada.
-                </TableCell>
+                <TableHead>Data</TableHead>
+                <TableHead>Programa</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead className="text-right">Quantidade</TableHead>
+                <TableHead className="text-right">Val. Unitário (1k)</TableHead>
+                <TableHead className="text-right">Valor Total</TableHead>
+                <TableHead className="w-[80px]"></TableHead>
               </TableRow>
-            ) : (
-              movements.map((mov) => {
-                const config = TIPO_LABELS[mov.tipo] || {
-                  label: mov.tipo,
-                  color: 'bg-muted text-muted-foreground',
-                  sign: '',
-                }
+            </TableHeader>
+            <TableBody>
+              {movements.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                    Nenhuma movimentação encontrada.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                movements.map((mov) => {
+                  const config = TIPO_LABELS[mov.tipo] || {
+                    label: mov.tipo,
+                    color: 'bg-muted text-muted-foreground',
+                    sign: '',
+                  }
 
-                return (
-                  <TableRow key={mov.id}>
-                    <TableCell className="whitespace-nowrap font-medium">
-                      {formatDate(mov.data)}
-                    </TableCell>
-                    <TableCell className="font-semibold">{mov.programa}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={`whitespace-nowrap font-normal ${config.color}`}
-                      >
-                        {config.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums whitespace-nowrap">
-                      {isBalanceHidden ? '***' : `${config.sign} ${formatMiles(mov.quantidade)}`}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground whitespace-nowrap">
-                      {formatCurrency(mov.valor_unitario, isBalanceHidden)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">
-                      {formatCurrency(mov.valor_total, isBalanceHidden)}
-                    </TableCell>
-                    <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                  return (
+                    <TableRow key={mov.id}>
+                      <TableCell className="whitespace-nowrap font-medium">
+                        {formatDate(mov.data)}
+                      </TableCell>
+                      <TableCell className="font-semibold">{mov.programa}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`whitespace-nowrap font-normal ${config.color}`}
+                        >
+                          {config.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums whitespace-nowrap">
+                        {isBalanceHidden ? '***' : `${config.sign} ${formatMiles(mov.quantidade)}`}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground whitespace-nowrap">
+                        {formatCurrency(mov.valor_unitario, isBalanceHidden)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">
+                        {formatCurrency(mov.valor_total, isBalanceHidden)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            onClick={() => setEditingMov(mov)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Excluir Movimentação</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tem certeza que deseja excluir esta movimentação?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              onClick={() => handleDelete(mov.id)}
-                            >
-                              Excluir
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir Movimentação</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir esta movimentação?
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => handleDelete(mov.id)}
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <EditMilesMovementModal
+        open={!!editingMov}
+        onOpenChange={(o) => !o && setEditingMov(null)}
+        movement={editingMov}
+      />
+    </>
   )
 }

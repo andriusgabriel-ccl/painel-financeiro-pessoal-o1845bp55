@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useFinance, Obligation } from '@/contexts/FinanceContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -27,11 +27,14 @@ import {
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { differenceInDays, parseISO, startOfDay } from 'date-fns'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Pencil, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import { ObligationModal } from '@/components/ObligationModal'
 
 export default function Obligations() {
   const { obligations, entities, isBalanceHidden, isLoading, deleteObligation } = useFinance()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingObs, setEditingObs] = useState<Obligation | null>(null)
 
   const payables = useMemo(() => obligations.filter((o) => o.type === 'payable'), [obligations])
   const receivables = useMemo(
@@ -48,6 +51,11 @@ export default function Obligations() {
     const { error } = await deleteObligation(id)
     if (!error) toast.success('Obrigação excluída com sucesso.')
     else toast.error('Erro ao excluir obrigação.')
+  }
+
+  const handleOpenModal = (open: boolean) => {
+    setModalOpen(open)
+    if (!open) setEditingObs(null)
   }
 
   const getUrgencyColor = (dateStr: string, status: string) => {
@@ -104,7 +112,7 @@ export default function Obligations() {
             <TableHead>Data de Vencimento</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Valor</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-[80px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -131,39 +139,52 @@ export default function Obligations() {
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(item.status)}</TableCell>
-                <TableCell className="text-right tabular-nums font-semibold">
+                <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">
                   {formatCurrency(item.amount, isBalanceHidden)}
                 </TableCell>
                 <TableCell>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir Obrigação</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir esta obrigação? Esta ação não pode ser
-                          desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          onClick={() => handleDelete(item.id)}
+                  <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => {
+                        setEditingObs(item)
+                        setModalOpen(true)
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         >
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir Obrigação</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Tem certeza que deseja excluir esta obrigação? Esta ação não pode ser
+                            desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </TableCell>
               </TableRow>
             )
@@ -185,8 +206,11 @@ export default function Obligations() {
 
   return (
     <div className="animate-fade-in-up space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">Obrigações</h1>
+        <Button onClick={() => setModalOpen(true)} className="gap-2 w-full sm:w-auto">
+          <Plus className="h-4 w-4" /> Nova Obrigação
+        </Button>
       </div>
 
       <Tabs defaultValue="payable" className="w-full">
@@ -209,6 +233,8 @@ export default function Obligations() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <ObligationModal open={modalOpen} onOpenChange={handleOpenModal} obligation={editingObs} />
     </div>
   )
 }

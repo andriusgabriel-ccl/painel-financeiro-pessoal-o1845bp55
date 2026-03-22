@@ -22,6 +22,7 @@ interface MilesContextData {
   configs: Record<string, number>
   isLoading: boolean
   addMovement: (movement: Omit<MilesMovement, 'id'>) => Promise<{ error: any }>
+  editMovement: (id: string, movement: Omit<MilesMovement, 'id'>) => Promise<{ error: any }>
   deleteMovement: (id: string) => Promise<{ error: any }>
   updateConfigs: (newConfigs: MilesConfig[]) => Promise<{ error: any }>
   refreshData: () => Promise<void>
@@ -86,6 +87,31 @@ export function MilesProvider({ children }: { children: ReactNode }) {
     return { error }
   }
 
+  const editMovement = async (id: string, mov: Omit<MilesMovement, 'id'>) => {
+    if (!user) return { error: 'No user' }
+    const { data, error } = await supabase
+      .from('movimentacoes_milhas')
+      .update({
+        data: mov.data,
+        programa: mov.programa,
+        tipo: mov.tipo,
+        quantidade: mov.quantidade,
+        valor_unitario: mov.valor_unitario,
+        valor_total: mov.valor_total,
+      })
+      .eq('id', id)
+      .select()
+
+    if (data && !error) {
+      setMovements((prev) =>
+        prev
+          .map((m) => (m.id === id ? (data[0] as MilesMovement) : m))
+          .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime()),
+      )
+    }
+    return { error }
+  }
+
   const deleteMovement = async (id: string) => {
     const { error } = await supabase.from('movimentacoes_milhas').delete().eq('id', id)
     if (!error) {
@@ -123,6 +149,7 @@ export function MilesProvider({ children }: { children: ReactNode }) {
         configs,
         isLoading,
         addMovement,
+        editMovement,
         deleteMovement,
         updateConfigs,
         refreshData: fetchData,

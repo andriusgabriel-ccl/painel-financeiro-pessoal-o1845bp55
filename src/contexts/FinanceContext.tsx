@@ -59,6 +59,8 @@ interface FinanceContextData {
   editTransaction: (id: string, payload: any) => Promise<{ error: any }>
   deleteTransaction: (id: string) => Promise<{ error: any }>
   importTransactions: (payloads: any[]) => Promise<{ error: any; count?: number }>
+  addObligation: (payload: any) => Promise<{ error: any }>
+  editObligation: (id: string, payload: any) => Promise<{ error: any }>
   deleteObligation: (id: string) => Promise<{ error: any }>
   categoriesByEntity: Record<string, string[]>
   chartData: any[]
@@ -93,7 +95,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       supabase.from('entidades').select('*').order('created_at'),
       supabase.from('categorias').select('*'),
       supabase.from('lancamentos').select('*').order('data', { ascending: false }),
-      supabase.from('obrigacoes').select('*'),
+      supabase.from('obrigacoes').select('*').order('vencimento', { ascending: true }),
     ])
     if (entRes.data) setEntitiesData(entRes.data)
     if (catRes.data) setCategoriesData(catRes.data)
@@ -329,9 +331,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       })
       .eq('id', realId)
 
-    if (!error) {
-      fetchData()
-    }
+    if (!error) fetchData()
     return { error }
   }
 
@@ -353,9 +353,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     })
 
     const { error } = await supabase.from('lancamentos').insert(inserts)
-    if (!error) {
-      fetchData()
-    }
+    if (!error) fetchData()
     return { error, count: inserts.length }
   }
 
@@ -365,6 +363,38 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     if (!error) {
       setTransactionsData((prev) => prev.filter((t) => t.id !== realId))
     }
+    return { error }
+  }
+
+  const addObligation = async (payload: any) => {
+    if (!user) return { error: 'No user' }
+    const { error } = await supabase.from('obrigacoes').insert({
+      user_id: user.id,
+      entidade_id: payload.entityId,
+      descricao: payload.description,
+      valor: payload.amount,
+      vencimento: payload.dueDate,
+      tipo: payload.type,
+      status: payload.status,
+    })
+    if (!error) fetchData()
+    return { error }
+  }
+
+  const editObligation = async (id: string, payload: any) => {
+    if (!user) return { error: 'No user' }
+    const { error } = await supabase
+      .from('obrigacoes')
+      .update({
+        entidade_id: payload.entityId,
+        descricao: payload.description,
+        valor: payload.amount,
+        vencimento: payload.dueDate,
+        tipo: payload.type,
+        status: payload.status,
+      })
+      .eq('id', id)
+    if (!error) fetchData()
     return { error }
   }
 
@@ -389,6 +419,8 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         editTransaction,
         deleteTransaction,
         importTransactions,
+        addObligation,
+        editObligation,
         deleteObligation,
         categoriesByEntity,
         chartData,
