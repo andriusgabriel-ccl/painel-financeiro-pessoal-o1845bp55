@@ -1,6 +1,5 @@
 {
   "_versions": {
-    "telegram-bot": 1,
-    "telegram-webhook": 1
+    "telegram-polling": 1
   }
 }
