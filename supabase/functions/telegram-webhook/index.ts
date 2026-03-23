@@ -9,17 +9,17 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!)
 
 Deno.serve(async (req: Request) => {
-  if (req.method !== 'POST') return new Response('ok')
+  if (req.method !== 'POST') return new Response('ok', { status: 200 })
 
   try {
     const update = await req.json()
-    if (!update.message || !update.message.text) return new Response('ok')
+    if (!update.message || !update.message.text) return new Response('ok', { status: 200 })
 
     const chatId = update.message.chat.id
     const text = update.message.text
 
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -43,7 +43,7 @@ Deno.serve(async (req: Request) => {
     const geminiData = await geminiRes.json()
     if (!geminiData.candidates || geminiData.candidates.length === 0) {
       await sendTelegramMessage(chatId, `❌ Não entendi a mensagem.`)
-      return new Response('ok')
+      return new Response('ok', { status: 200 })
     }
 
     const responseText = geminiData.candidates[0].content.parts[0].text
@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
         chatId,
         `❌ Erro ao interpretar os dados. Tente reformular a mensagem.`,
       )
-      return new Response('ok')
+      return new Response('ok', { status: 200 })
     }
 
     if (!parsed.valor || !parsed.descricao) {
@@ -68,7 +68,7 @@ Deno.serve(async (req: Request) => {
         chatId,
         `❌ Não consegui identificar o valor ou a descrição. Pode fornecer mais detalhes?`,
       )
-      return new Response('ok')
+      return new Response('ok', { status: 200 })
     }
 
     const entidadeQuery = parsed.entidade || ''
@@ -93,7 +93,7 @@ Deno.serve(async (req: Request) => {
           chatId,
           `❌ Não encontrei nenhuma entidade no sistema para registrar o lançamento.`,
         )
-        return new Response('ok')
+        return new Response('ok', { status: 200 })
       }
     }
 
@@ -131,14 +131,14 @@ Deno.serve(async (req: Request) => {
     } else {
       await sendTelegramMessage(
         chatId,
-        `✅ Lançamento registrado!\n\n💰 Valor: R$ ${Number(parsed.valor).toFixed(2)}\n📝 Descrição: ${parsed.descricao}\n🏢 Entidade: ${entidade.nome}${categoriaNome ? `\n🏷️ Categoria: ${categoriaNome}` : ''}`,
+        `✅ Lançamento registrado com sucesso!\n\n💰 Valor: R$ ${Number(parsed.valor).toFixed(2)}\n📝 Descrição: ${parsed.descricao}\n🏢 Entidade: ${entidade.nome}${categoriaNome ? `\n🏷️ Categoria: ${categoriaNome}` : ''}`,
       )
     }
   } catch (error: any) {
     console.error(error)
   }
 
-  return new Response('ok')
+  return new Response('ok', { status: 200 })
 })
 
 async function sendTelegramMessage(chatId: number, text: string) {

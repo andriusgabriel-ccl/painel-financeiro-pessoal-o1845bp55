@@ -1,5 +1,6 @@
 {
   "_versions": {
-    "telegram-bot": 1
+    "telegram-bot": 1,
+    "telegram-webhook": 1
   }
 }
